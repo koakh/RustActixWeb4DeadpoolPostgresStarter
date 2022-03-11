@@ -269,6 +269,7 @@ dependencies = [
  "derive_more",
  "dotenv",
  "log",
+ "mime",
  "openssl",
  "serde 1.0.136",
  "tokio-pg-mapper",

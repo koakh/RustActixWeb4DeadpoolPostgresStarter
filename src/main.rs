@@ -142,12 +142,12 @@ mod db {
 
 mod handlers {
   use crate::{
-    constants::{I18N_RECORD_NOT_FOUND, I18N_CANT_CREATE_RECORD},
+    constants::{I18N_CANT_CREATE_RECORD, I18N_RECORD_NOT_FOUND},
     db,
     errors::MyError,
     models::{Filter, Message, User},
   };
-  use actix_web::{delete, get, http::StatusCode, post, web, Error, HttpResponse};
+  use actix_web::{delete, get, http::{StatusCode, header}, post, web, Error, HttpResponse};
   use deadpool_postgres::{Client, Pool};
   #[allow(unused_imports)]
   use log::{debug, error};
@@ -157,6 +157,33 @@ mod handlers {
     HttpResponse::Ok().json(Message {
       message: String::from("pong"),
     })
+  }
+
+  #[get("/redirect")]
+  pub async fn redirect() -> HttpResponse {
+    // deprecated
+    // HttpResponse::Found()
+    //   .header(http::header::LOCATION, "https://kuartzo.com")
+    //   .finish()
+    // HttpResponse::Found()
+    // .append_header("header::ContentType(mime::APPLICATION_JSON)"  )
+    // .append_header("http::header::LOCATION.as_str()", "https://kuartzo.com")
+    //   .finish()
+    // TODO:
+    // https://docs.rs/actix-web/latest/actix_web/struct.HttpResponseBuilder.html#method.append_header
+    // https://crates.io/crates/mime
+
+    HttpResponse::Found()
+      // optional
+      .append_header(header::ContentType(mime::TEXT_HTML))
+      // .append_header(("X-TEST", "value1"))
+      .append_header(("location", "https://google.com"))
+      .finish()
+    // HttpResponse::Found()
+    //   //.append_header(header::ContentType(mime::APPLICATION_JSON))
+    //   .append_header(("X-TEST", "value1"))
+    //   .append_header(("X-TEST", "value2"))
+    //   .finish();
   }
 
   pub async fn not_found() -> Result<HttpResponse, Error> {
@@ -255,7 +282,7 @@ use std::time::Duration;
 
 use actix_web::{web, App, HttpServer};
 use dotenv::dotenv;
-use handlers::{add_user, delete_user, get_user, get_users, not_found, ping};
+use handlers::{add_user, delete_user, get_user, get_users, not_found, ping, redirect};
 use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 use tokio_postgres::NoTls;
 
@@ -281,6 +308,7 @@ async fn main() -> std::io::Result<()> {
     App::new()
       .app_data(web::Data::new(pool.clone()))
       .service(ping)
+      .service(redirect)
       .service(
         web::scope("/api")
           .service(add_user)
