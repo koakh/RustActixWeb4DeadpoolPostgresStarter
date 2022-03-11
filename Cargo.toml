@@ -4,7 +4,9 @@ version = "1.0.0"
 edition = "2021"
 
 [dependencies]
-actix-web = "4"
+log = "0.4.14"
+actix-web = { version = "4", features = ["openssl"] }
+openssl = { version = "0.10" }
 config = "0.11.0"
 deadpool-postgres = { version = "0.10.1", features = ["serde"] }
 derive_more = "0.99.2"

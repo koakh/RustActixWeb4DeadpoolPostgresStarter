@@ -88,19 +88,34 @@ $ cargo run
 Using a different terminal send an HTTP POST request to the running server:
 
 ```shell
-$ curl -X POST http://127.0.0.1:8080/users \
+# ping
+$ curl -k -X GET https://127.0.0.1:8443/ping \
+  -H 'Content-Type: application/json' \
+  | jq
+
+$ curl -k -X POST https://127.0.0.1:8443/api/users \
   -H 'Content-Type: application/json' \
   -d '{"email": "ferris@thecrab.com", "first_name": "ferris", "last_name": "crab", "username": "ferreal"}' \
   | jq
 
-$ curl -X POST http://127.0.0.1:8080/users \
+$ curl -k -X POST https://127.0.0.1:8443/api/users \
   -H 'Content-Type: application/json' \
   -d '{"email": "rustris@thecrab.com", "first_name": "rustris", "last_name": "crab", "username": "rustris"}' \
   | jq
 
-$ curl -X GET http://127.0.0.1:8080/users \
+$ curl -k -X GET https://127.0.0.1:8443/api/users \
   -H 'Content-Type: application/json' \
   -d "{\"condition\": \"users.email = 'rustris@thecrab.com'\"}" \
+  | jq
+
+# get user
+$ curl -k -X GET https://127.0.0.1:8443/api/users/ferreal \
+  -H 'Content-Type: application/json' \
+  | jq
+
+# delete user
+$ curl -k -X DELETE https://127.0.0.1:8443/api/users/rustris \
+  -H 'Content-Type: application/json' \
   | jq
 ```
 
