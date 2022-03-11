@@ -4,6 +4,7 @@ mod constants {
   pub const I18N_RECORD_NOT_FOUND: &'static str = "record not found";
   pub const I18N_CANT_CREATE_RECORD: &'static str = "can't create record";
 }
+
 mod config {
   pub use ::config::ConfigError;
   use serde::Deserialize;
@@ -161,29 +162,11 @@ mod handlers {
 
   #[get("/redirect")]
   pub async fn redirect() -> HttpResponse {
-    // deprecated
-    // HttpResponse::Found()
-    //   .header(http::header::LOCATION, "https://kuartzo.com")
-    //   .finish()
-    // HttpResponse::Found()
-    // .append_header("header::ContentType(mime::APPLICATION_JSON)"  )
-    // .append_header("http::header::LOCATION.as_str()", "https://kuartzo.com")
-    //   .finish()
-    // TODO:
-    // https://docs.rs/actix-web/latest/actix_web/struct.HttpResponseBuilder.html#method.append_header
-    // https://crates.io/crates/mime
-
     HttpResponse::Found()
       // optional
       .append_header(header::ContentType(mime::TEXT_HTML))
-      // .append_header(("X-TEST", "value1"))
       .append_header(("location", "https://google.com"))
       .finish()
-    // HttpResponse::Found()
-    //   //.append_header(header::ContentType(mime::APPLICATION_JSON))
-    //   .append_header(("X-TEST", "value1"))
-    //   .append_header(("X-TEST", "value2"))
-    //   .finish();
   }
 
   pub async fn not_found() -> Result<HttpResponse, Error> {
@@ -279,7 +262,6 @@ mod handlers {
 }
 
 use std::time::Duration;
-
 use actix_web::{web, App, HttpServer};
 use dotenv::dotenv;
 use handlers::{add_user, delete_user, get_user, get_users, not_found, ping, redirect};
