@@ -1,7 +1,6 @@
 Project:
   ☐ @critical shared function user_exists(username)
     and use it in before add, in get, and delete
-  ☐ @critical start from tailor after update it to actixweb 4.0
   ☐ add Makefile
   ☐ add api token
   ☐ websockets

@@ -4,7 +4,6 @@
 @baseUri = https://{{host}}:{{port}}
 @uri = {{baseUri}}/api
 @contentType = application/json
-// @apiKey = 5KmgFcy1X7bbcbtSuOtXEZXYslKyB0n3g3xRmCaaNsAwB9dhOpKuhZ04Mfr2OKGL
 
 ### ping
 // @name ping
@@ -12,8 +11,23 @@
 GET {{baseUri}}/ping HTTP/1.1
 Content-Type: {{contentType}}
 
-### getUsers
-// @name getUsers
+### redirect
+// @name redirect
+
+GET {{baseUri}}/redirect HTTP/1.1
+Content-Type: {{contentType}}
+
+### getAllUsers
+// @name getAllUsers
+
+GET {{uri}}/users HTTP/1.1
+Content-Type: {{contentType}}
+
+{
+}
+
+### getFilteredUsers
+// @name getFilteredUsers
 
 GET {{uri}}/users HTTP/1.1
 Content-Type: {{contentType}}
@@ -21,6 +35,12 @@ Content-Type: {{contentType}}
 {
   "condition": "users.email = 'mail@koakh.com'"
 }
+
+### getUser
+// @name getUser
+
+GET {{uri}}/users/ferreal HTTP/1.1
+Content-Type: {{contentType}}
 
 ### createUser
 // @name createUser
@@ -35,15 +55,8 @@ Content-Type: {{contentType}}
   "last_name": "Monteiro"
 }
 
-### getUser
-// @name getUser
-
-GET {{uri}}/users/koakh HTTP/1.1
-Content-Type: {{contentType}}
-
 ### deleteUser
 // @name deleteUser
 
 DELETE {{uri}}/users/koakh HTTP/1.1
 Content-Type: {{contentType}}
-

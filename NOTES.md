@@ -2,7 +2,13 @@
 
 ## Pre Requisites
 
+### Tooling
+
+- [Open Source SQL Editor and Database Manager](https://www.beekeeperstudio.io/)
+
 ### Postgres
+
+> update: used docker postgres
 
 - [SDB:PostgreSQL - openSUSE Wiki](https://en.opensuse.org/SDB:PostgreSQL)
 
@@ -83,40 +89,6 @@ PG.POOL.MAX_SIZE=16
 ```shell
 # run the server:
 $ cargo run
-```
-
-Using a different terminal send an HTTP POST request to the running server:
-
-```shell
-# ping
-$ curl -k -X GET https://127.0.0.1:8443/ping \
-  -H 'Content-Type: application/json' \
-  | jq
-
-$ curl -k -X POST https://127.0.0.1:8443/api/users \
-  -H 'Content-Type: application/json' \
-  -d '{"email": "ferris@thecrab.com", "first_name": "ferris", "last_name": "crab", "username": "ferreal"}' \
-  | jq
-
-$ curl -k -X POST https://127.0.0.1:8443/api/users \
-  -H 'Content-Type: application/json' \
-  -d '{"email": "rustris@thecrab.com", "first_name": "rustris", "last_name": "crab", "username": "rustris"}' \
-  | jq
-
-$ curl -k -X GET https://127.0.0.1:8443/api/users \
-  -H 'Content-Type: application/json' \
-  -d "{\"condition\": \"users.email = 'rustris@thecrab.com'\"}" \
-  | jq
-
-# get user
-$ curl -k -X GET https://127.0.0.1:8443/api/users/ferreal \
-  -H 'Content-Type: application/json' \
-  | jq
-
-# delete user
-$ curl -k -X DELETE https://127.0.0.1:8443/api/users/rustris \
-  -H 'Content-Type: application/json' \
-  | jq
 ```
 
 ## Convert a collection to a Result
