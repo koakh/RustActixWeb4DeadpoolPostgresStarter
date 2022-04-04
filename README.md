@@ -23,7 +23,7 @@ added crud and other missing pieces on top of [actixweb 4.0 postgres example](ht
 1. Create database user
 
 ```shell
-createuser -P test_user
+$ createuser -P test_user
 ```
 
 Enter a password of your choice. The following instructions assume you used `testing` as password.

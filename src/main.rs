@@ -3,6 +3,7 @@ mod constants {
   pub const APP_NAME: &'static str = "actixweb 4.0 deadpool-postgres starter";
   pub const I18N_RECORD_NOT_FOUND: &'static str = "record not found";
   pub const I18N_CANT_CREATE_RECORD: &'static str = "can't create record";
+  pub const I18N_CANT_UPDATE_RECORD: &'static str = "can't update record";
 }
 
 mod config {
@@ -45,10 +46,10 @@ mod models {
   #[pg_mapper(table = "users")]
   // singular 'user' is a keyword..
   pub struct User {
+    pub username: String,
     pub email: String,
     pub first_name: String,
     pub last_name: String,
-    pub username: String,
   }
 }
 
@@ -96,10 +97,10 @@ mod db {
       .query(
         &stmt,
         &[
+          &user_info.username,
           &user_info.email,
           &user_info.first_name,
           &user_info.last_name,
-          &user_info.username,
         ],
       )
       .await?
@@ -131,6 +132,30 @@ mod db {
     Ok(res)
   }
 
+  pub async fn update_user(client: &Client, user_info: User) -> Result<User, MyError> {
+    let _stmt = include_str!("../sql/update_user.sql");
+    let _stmt = _stmt.replace("$table_fields", &User::sql_table_fields());
+    let stmt = client.prepare(&_stmt).await.unwrap();
+
+    client
+      .query(
+        &stmt,
+        &[
+          &user_info.username,
+          &user_info.email,
+          &user_info.first_name,
+          &user_info.last_name,
+        ],
+      )
+      .await?
+      .iter()
+      .map(|row| User::from_row_ref(row).unwrap())
+      .collect::<Vec<User>>()
+      .pop()
+      // more applicable for SELECTs
+      .ok_or(MyError::NotFound)
+  }
+
   pub async fn delete_user(client: &Client, username: String) -> Result<(), MyError> {
     let _stmt = include_str!("../sql/delete_user.sql");
 
@@ -143,12 +168,16 @@ mod db {
 
 mod handlers {
   use crate::{
-    constants::{I18N_CANT_CREATE_RECORD, I18N_RECORD_NOT_FOUND},
+    constants::{I18N_CANT_CREATE_RECORD, I18N_RECORD_NOT_FOUND, I18N_CANT_UPDATE_RECORD},
     db,
     errors::MyError,
     models::{Filter, Message, User},
   };
-  use actix_web::{delete, get, http::{StatusCode, header}, post, web, Error, HttpResponse};
+  use actix_web::{
+    delete, get,
+    http::{header, StatusCode},
+    post, put, web, Error, HttpResponse,
+  };
   use deadpool_postgres::{Client, Pool};
   #[allow(unused_imports)]
   use log::{debug, error};
@@ -236,6 +265,26 @@ mod handlers {
     }
   }
 
+  #[put("/users")]
+  pub async fn update_user(
+    user: web::Json<User>,
+    db_pool: web::Data<Pool>,
+  ) -> Result<HttpResponse, Error> {
+    let user_info: User = user.into_inner();
+
+    let client: Client = db_pool.get().await.map_err(MyError::PoolError)?;
+
+    match db::update_user(&client, user_info).await {
+      Ok(update_user) => Ok(HttpResponse::Ok().json(update_user)),
+      Err(_e) => {
+        // error!("error {:?}", e);
+        Ok(HttpResponse::Conflict().json(Message {
+          message: format!("{}", I18N_CANT_UPDATE_RECORD),
+        }))
+      }
+    }
+  }
+
   #[delete("/users/{username}")]
   pub async fn delete_user(
     path: web::Path<String>,
@@ -261,11 +310,13 @@ mod handlers {
   }
 }
 
-use std::time::Duration;
 use actix_web::{web, App, HttpServer};
 use dotenv::dotenv;
-use handlers::{add_user, delete_user, get_user, get_users, not_found, ping, redirect};
+use handlers::{
+  add_user, delete_user, get_user, get_users, not_found, ping, redirect, update_user,
+};
 use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
+use std::time::Duration;
 use tokio_postgres::NoTls;
 
 #[actix_web::main]
@@ -296,6 +347,7 @@ async fn main() -> std::io::Result<()> {
           .service(add_user)
           .service(get_users)
           .service(get_user)
+          .service(update_user)
           .service(delete_user),
       )
       .default_service(web::route().to(not_found))

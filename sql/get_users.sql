@@ -1,1 +1,5 @@
-SELECT $table_fields FROM testing.users $where;
+SELECT
+  $table_fields
+FROM
+  testing.users
+$where;

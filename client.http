@@ -49,10 +49,23 @@ POST {{uri}}/users HTTP/1.1
 Content-Type: {{contentType}}
 
 {
-  "username": "koakh",
+  "username": "koakh28",
   "email": "mail@koakh.com",
   "first_name": "Mario", 
   "last_name": "Monteiro"
+}
+
+### updateUser
+// @name updateUser
+
+PUT {{uri}}/users HTTP/1.1
+Content-Type: {{contentType}}
+
+{
+  "username": "koakh",
+  "email": "koah@koakh.com",
+  "first_name": "Koakh", 
+  "last_name": "Koakh"
 }
 
 ### deleteUser

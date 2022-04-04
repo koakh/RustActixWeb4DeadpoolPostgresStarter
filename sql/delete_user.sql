@@ -1,2 +1,4 @@
-DELETE FROM testing.users 
-WHERE username = $1
+DELETE FROM 
+  testing.users 
+WHERE 
+  username = $1

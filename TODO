@@ -1,4 +1,5 @@
 Project:
+  ☐ @critical update user
   ☐ @critical shared function user_exists(username)
     and use it in before add, in get, and delete
   ☐ add Makefile
