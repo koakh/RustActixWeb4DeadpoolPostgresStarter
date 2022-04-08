@@ -1,5 +1,13 @@
 # NOTES
 
+- [NOTES](#notes)
+  - [Pre Requisites](#pre-requisites)
+    - [Tooling](#tooling)
+    - [Postgres](#postgres)
+  - [Bootstrap project](#bootstrap-project)
+  - [Convert a collection to a Result](#convert-a-collection-to-a-result)
+  - [Update using an existing tokio_postgres::Config](#update-using-an-existing-tokio_postgresconfig)
+
 ## Pre Requisites
 
 ### Tooling
@@ -66,9 +74,9 @@ use pgAdmin to grant user on **testing schema**
 ![image](2022-03-09-22-47-42.png)
 
 ```sql
-ALTER TABLE IF EXISTS testing.users OWNER to postgres;
-GRANT ALL ON TABLE testing.users TO postgres;
-GRANT ALL ON TABLE testing.users TO test_user;
+ALTER TABLE IF EXISTS default_schema.users OWNER to postgres;
+GRANT ALL ON TABLE default_schema.users TO postgres;
+GRANT ALL ON TABLE default_schema.users TO test_user;
 ```
 
 ```shell
@@ -98,5 +106,40 @@ $ cargo run
 ```rust
   // more applicable for SELECTs
   .ok_or(MyError::NotFound)
+}
+```
+
+## Update using an existing tokio_postgres::Config
+
+in starter project, now we don't use bellow dependencies, we opted for a manually config based on env variables only
+
+```shell
+# config
+config = "0.11.0"
+dotenv = "0.15.0"
+```
+
+- [Example using an existing tokio_postgres::Config object](https://docs.rs/deadpool-postgres/latest/deadpool_postgres/#example-using-an-existing-tokio_postgresconfig-object)
+
+```rust
+// config postgres
+let mut pg_config = tokio_postgres::Config::new();
+pg_config.user(env::var("PG_USER").unwrap_or(DEFAULT_PG_USER.to_string()).as_str());
+pg_config.password(env::var("PG_PASSWORD").unwrap_or(DEFAULT_PG_PASSWORD.to_string()).as_str());
+pg_config.host(env::var("PG_HOST").unwrap_or(DEFAULT_PG_HOST.to_string()).as_str());
+pg_config.port(env::var("PG_PORT").unwrap_or(DEFAULT_PG_PORT.to_string()).parse::<i16>().unwrap() as u16);
+pg_config.dbname(env::var("PG_DBNAME").unwrap_or(DEFAULT_PG_DBNAME.to_string()).as_str());
+let mgr_config = ManagerConfig {
+  recycling_method: RecyclingMethod::Fast,
+};
+let mgr = Manager::from_config(pg_config, NoTls, mgr_config);
+let pool = Pool::builder(mgr)
+  .max_size(env::var("PG_POOL_MAX_SIZE").unwrap_or(DEFAULT_PG_POOL_MAX_SIZE.to_string()).parse::<usize>().unwrap())
+  .build()
+  .unwrap();
+// If you want your application to crash on startup if no database connection can be established just call pool.get().await right after creating the pool.
+match pool.get().await {
+  Ok(_) => info!("database connection can be established"),
+  Err(e) => error!("{:?}", e),
 }
 ```

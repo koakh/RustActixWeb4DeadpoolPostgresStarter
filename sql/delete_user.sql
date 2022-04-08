@@ -1,4 +1,4 @@
 DELETE FROM 
-  testing.users 
+  default_schema.users 
 WHERE 
   username = $1

@@ -1,5 +1,5 @@
 SELECT
   $table_fields
 FROM
-  testing.users
+  default_schema.users
 $where;

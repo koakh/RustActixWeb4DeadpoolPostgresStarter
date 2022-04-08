@@ -1,5 +1,5 @@
 UPDATE
-  testing.users
+  default_schema.users
 SET
   email = $2,
   first_name = $3,
